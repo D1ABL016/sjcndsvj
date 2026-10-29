@@ -8,3 +8,4 @@ ELEXON_BASE_URL = os.environ.get("ELEXON_BASE_URL", "https://data.elexon.co.uk/b
 WINDOW_FROM = os.environ.get("WINDOW_FROM", "2026-01-02T00:00:00+00:00")
 WINDOW_TO = os.environ.get("WINDOW_TO", "2026-02-01T00:00:00+00:00")
 CUTOFF_TIME = os.environ.get("CUTOFF_TIME", "09:00")
+CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")

@@ -6,7 +6,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from config import WINDOW_FROM, WINDOW_TO, CUTOFF_TIME
+from config import WINDOW_FROM, WINDOW_TO, CUTOFF_TIME, CORS_ORIGINS
 from db import get_db
 import queries
 import metrics
@@ -18,7 +18,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
