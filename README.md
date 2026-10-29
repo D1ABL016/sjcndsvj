@@ -125,6 +125,8 @@ python ingest.py
 ## Deployment (Vercel + Neon)
 
 Frontend and backend are deployed as two separate Vercel projects from the same repo. Postgres runs on Neon.
+Frontend Deployed Link - https://sjcndsvj.vercel.app/
+Backend Deployed Link - https://sjcndsvj-o1wm.vercel.app/
 
 
 ## API endpoints
