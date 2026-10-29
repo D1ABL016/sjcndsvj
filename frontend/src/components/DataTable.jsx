@@ -16,6 +16,9 @@ export default function DataTable({ date, tz = "UTC" }) {
   const [sortKey, setSortKey] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [versions, setVersions] = useState(null);
+  const [versionsError, setVersionsError] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -68,11 +71,27 @@ export default function DataTable({ date, tz = "UTC" }) {
     return sortAsc ? " ↑" : " ↓";
   }
 
+  function handleRowClick(row) {
+    setSelected(row);
+    setVersions(null);
+    setVersionsError(null);
+    fetchJson(`/api/versions?start_time=${encodeURIComponent(row.start_time)}`)
+      .then(setVersions)
+      .catch((e) => setVersionsError(e.message));
+  }
+
+  function closeModal() {
+    setSelected(null);
+    setVersions(null);
+    setVersionsError(null);
+  }
+
   if (error) return <p className="error">{error}</p>;
   if (!data) return <p className="loading">Loading data...</p>;
   if (data.length === 0) return <p className="loading">No data for {date}</p>;
 
   return (
+    <>
     <div className="table-card">
       <div className="table-header">
         <div className="table-title">Interval Data — {date}</div>
@@ -112,7 +131,12 @@ export default function DataTable({ date, tz = "UTC" }) {
               const err = r.error;
               const isLarge = err != null && Math.abs(err) > 2000;
               return (
-                <tr key={r.start_time} className={isLarge ? "large-error" : ""}>
+                <tr
+                  key={r.start_time}
+                  className={`clickable-row${isLarge ? " large-error" : ""}`}
+                  onClick={() => handleRowClick(r)}
+                  title="Click to see all forecast versions"
+                >
                   <td>{new Date(r.start_time).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz })}</td>
                   <td>{new Date(r.publish_time).toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz })}</td>
                   <td className="num">{fmt(r.forecast_mw)} MW</td>
@@ -130,6 +154,51 @@ export default function DataTable({ date, tz = "UTC" }) {
         </table>
       </div>
     </div>
+
+    {selected && (
+      <div className="modal-overlay" onClick={closeModal}>
+        <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <div className="modal-title">
+              All forecasts for {new Date(selected.start_time).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz })} {tz}
+            </div>
+            <button className="modal-close" onClick={closeModal}>✕</button>
+          </div>
+          <div className="modal-body">
+            {versionsError && <p className="error">{versionsError}</p>}
+            {!versions && !versionsError && <p className="loading">Loading...</p>}
+            {versions && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Published ({tz})</th>
+                    <th style={{ textAlign: "right" }}>Forecast</th>
+                    <th style={{ textAlign: "right" }}>Actual</th>
+                    <th style={{ textAlign: "right" }}>Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {versions.map((v) => {
+                    const err = selected.actual_mw != null ? v.generation_mw - selected.actual_mw : null;
+                    return (
+                      <tr key={v.publish_time} className={v.publish_time === selected.publish_time ? "modal-selected-row" : ""}>
+                        <td>{new Date(v.publish_time).toLocaleString("en-GB", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: tz })}</td>
+                        <td className="num">{fmt(v.generation_mw)} MW</td>
+                        <td className="num">{fmt(selected.actual_mw)} MW</td>
+                        <td className={`num ${err > 0 ? "over-forecast" : err < 0 ? "under-forecast" : ""}`}>
+                          {err != null ? (err > 0 ? "+" : "") + fmt(err) : "—"} MW
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
