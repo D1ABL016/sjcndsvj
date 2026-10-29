@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
-from backend.models import ActualGeneration, ForecastGeneration
+from models import ActualGeneration, ForecastGeneration
 
 
 def selected_forecasts(db: Session, from_ts: datetime, to_ts: datetime, cutoff: str):

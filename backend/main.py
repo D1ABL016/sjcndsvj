@@ -6,11 +6,11 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from backend.config import WINDOW_FROM, WINDOW_TO, CUTOFF_TIME
-from backend.db import get_db
-from backend import queries
-from backend import metrics
-from backend.schemas import (
+from config import WINDOW_FROM, WINDOW_TO, CUTOFF_TIME
+from db import get_db
+import queries
+import metrics
+from schemas import (
     MetaResponse, SummaryResponse, DailyRow, SeriesRow, WorstRow, VersionRow,
 )
 

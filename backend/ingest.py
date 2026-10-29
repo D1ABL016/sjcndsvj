@@ -5,9 +5,9 @@ from datetime import datetime, timedelta, timezone
 import requests
 from sqlalchemy.dialects.postgresql import insert
 
-from backend.config import ELEXON_BASE_URL
-from backend.db import SessionLocal
-from backend.models import ActualGeneration, ForecastGeneration
+from config import ELEXON_BASE_URL
+from db import SessionLocal
+from models import ActualGeneration, ForecastGeneration
 
 
 def get_json(path, params):
@@ -125,7 +125,7 @@ def run_incremental():
         n = save_actuals(db, rows)
         print(f"actuals: {n} rows upserted")
 
-        from backend.queries import latest_forecast_publish
+        from queries import latest_forecast_publish
         latest = latest_forecast_publish(db)
 
         if latest is None:
