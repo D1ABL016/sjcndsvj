@@ -85,8 +85,11 @@ pip install -r backend/requirements.txt
 
 ### 3. Backfill January 2026 data
 
+Backend commands run from inside `backend/`, as imports are flat (`from config import ...`).
+
 ```bash
-python -m backend.ingest backfill 2025-12-30 2026-02-01
+cd backend
+python ingest.py backfill 2025-12-30 2026-02-01
 ```
 
 This pulls forecast and actual data from the Elexon API. Takes a few minutes.
@@ -94,7 +97,8 @@ This pulls forecast and actual data from the Elexon API. Takes a few minutes.
 ### 4. Start the backend
 
 ```bash
-uvicorn backend.main:app --reload
+cd backend
+uvicorn main:app --reload
 ```
 
 Runs on http://localhost:8000.
@@ -114,8 +118,14 @@ Runs on http://localhost:5173. The Vite dev server proxies `/api` requests to th
 Run every 30 minutes via cron to keep data current:
 
 ```bash
-python -m backend.ingest
+cd backend
+python ingest.py
 ```
+
+## Deployment (Vercel + Neon)
+
+Frontend and backend are deployed as two separate Vercel projects from the same repo. Postgres runs on Neon.
+
 
 ## API endpoints
 
